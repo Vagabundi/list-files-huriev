@@ -12,16 +12,24 @@ import javax.servlet.http.HttpServletResponse;
 public class MyServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String path = request.getParameter("path");
-        String scriptPath = getServletContext().getRealPath("/") + "app/scripts/listfiles.sh";
-        ProcessBuilder pb = new ProcessBuilder("bash", scriptPath, path, newExtension);
+        // Отримуємо параметри з запиту
+        String fileName = request.getParameter("fileName");
+        String newExtension = request.getParameter("extension");
+
+        // Викликаємо зовнішній скрипт з параметрами
+        String scriptPath = getServletContext().getRealPath("/") + "WEB-INF/scripts/change_extension.sh";
+        ProcessBuilder pb = new ProcessBuilder("bash", scriptPath, fileName, newExtension);
         Process p = pb.start();
+
+        // Зчитуємо результат виконання скрипта
         BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
         String line = null;
         StringBuilder sb = new StringBuilder();
         while ((line = reader.readLine()) != null) {
             sb.append(line);
         }
+
+        // Обробляємо результат виконання скрипта
         String result = sb.toString();
         if (result.equals("success")) {
             response.getWriter().write("Success.");
